@@ -112,7 +112,7 @@ always @(posedge clk or negedge rst) begin
 				{LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0000_1111;
 			WRITE : begin // 숫자 눌렀을 때 LCD출력
 				if(cnt == 20) begin // 한 번만 동작하도록
-					case(btn_number)
+					case(number_btn) // 토글
 						10'b1000_0000_00 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_0001; // 1
 						10'b0100_0000_00 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_0010; // 2
 						10'b0010_0000_00 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_0011; // 3
@@ -129,7 +129,7 @@ always @(posedge clk or negedge rst) begin
 			end
 			CURSOR : begin // *이나 #버튼 눌렀을때 커서 쉬프트
 				if(cnt == 20) begin // 한 번만 동작하도록
-					case(btn_control)
+					case(control_btn) // 토글
 						2'b10 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0001_0000; // LEFT
 						2'b01 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0001_0100; // RIGHT
 					endcase
