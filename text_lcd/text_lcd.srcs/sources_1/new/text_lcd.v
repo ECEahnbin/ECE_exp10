@@ -131,7 +131,7 @@ always @(posedge clk or negedge rst) begin
 				if(cnt == 20) begin // 한 번만 동작하도록
 					case(btn_control)
 						2'b10 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0001_0000; // LEFT
-						2'b10 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0001_0100; // LEFT
+						2'b01 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0001_0100; // RIGHT
 					endcase
 				end
 				else {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0000_1111;
