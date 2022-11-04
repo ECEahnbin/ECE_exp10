@@ -3,7 +3,7 @@ input clk, rst;
 input [9:0] number_btn;
 input [1:0] control_btn;
 input line; // line1, line2 change
-reg [7:0] internal; // DDRAM-Address : upto 21
+reg [6:0] internal; // DDRAM-Address : upto 21
 
 output reg LCD_RS, LCD_RW;
 output LCD_E;
