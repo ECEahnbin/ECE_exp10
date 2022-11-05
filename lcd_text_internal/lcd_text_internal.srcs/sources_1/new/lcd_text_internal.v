@@ -3,7 +3,7 @@ input clk, rst;
 input [9:0] number_btn;
 input [1:0] control_btn;
 input line; // line1, line2 change
-reg [6:0] internal; // DDRAM-Address : upto 21
+reg [4:0] internal; // Counter upto 22
 
 output reg LCD_RS, LCD_RW;
 output LCD_E;
@@ -121,7 +121,10 @@ always @(posedge clk or negedge rst) begin
 				{LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0000_1111;
 			WRITE : begin //
 				if(cnt == 19) begin
-					{LCD_RS, LCD_RW, LCD_DATA} = {3'b001, internal-1}; // internal위치로 커서를 위치시켜줌
+				    if(internal == 0 & ~line) // LINE1 처음상태로
+					   {LCD_RS, LCD_RW, LCD_DATA} = 10'b0010000000;
+					else if(internal == 0 & line) // LINE2 처음상태로
+					   {LCD_RS, LCD_RW, LCD_DATA} = 10'b0011000000;
 				end
 				else if(cnt == 20) begin // 
 					case(number_btn) // 토글
@@ -152,15 +155,15 @@ always @(posedge clk or negedge rst) begin
 	end
 end
 always @(posedge clk or negedge rst) begin
-	if(!rst) internal <= 1;
-	else if(line_posi | line_nega) internal <= 1; // line변화 시 초기화
+	if(!rst) internal <= 0;
+	else if(line_posi | line_nega) internal <= 0; // line변화 시 초기화
 	else
 		if((|btn_number) | btn_control[0]) begin // 버튼을 누르거나 오른쪽 커서 시프트 +1
-			if(internal == 22) internal <= 1;
+			if(internal == 21) internal <= 0;
 			else internal <= internal + 1;
 		end
 		else if(btn_control[1]) begin // 왼쪽 커서 시프트 -1
-			if(internal == 1)
+			if(internal == 0)
 				internal <= internal; // 0일때 음수 안되도록 경우처리
 			else
 				internal <= internal - 1;
