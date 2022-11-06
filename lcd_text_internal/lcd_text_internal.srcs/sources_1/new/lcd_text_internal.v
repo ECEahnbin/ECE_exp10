@@ -120,7 +120,14 @@ always @(posedge clk or negedge rst) begin
 			DELAY_T : // 
 				{LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0000_1111;
 			WRITE : begin //
-				if(cnt == 20) begin // 
+			    if(cnt == 19) begin
+			        if(internal == 0) begin
+			        	if(!line) {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_1000_0000; // line1 : 0번 주소
+			        	else {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_1100_0000; // line2 : 40번 주소
+			        end
+			        
+			    end
+				else if(cnt == 20) begin // 
 					case(number_btn) // 토글
 						10'b1000_0000_00 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_0001; // 1
 						10'b0100_0000_00 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_0010; // 2
@@ -133,12 +140,6 @@ always @(posedge clk or negedge rst) begin
 						10'b0000_0000_10 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_1001; // 9
 						10'b0000_0000_01 : {LCD_RS, LCD_RW, LCD_DATA} = 10'b1_0_0011_1010; // 0
 					endcase
-				end
-				else if(cnt == 21) begin
-				    if(internal == 0 & ~line) // LINE1 처음상태로
-					   {LCD_RS, LCD_RW, LCD_DATA} = 10'b0010000000;
-					else if(internal == 0 & line) // LINE2 처음상태로
-					   {LCD_RS, LCD_RW, LCD_DATA} = 10'b0011000000;
 				end
 				else {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_0000_1111;
 			end
@@ -158,18 +159,22 @@ always @(posedge clk or negedge rst) begin
 	if(!rst) internal <= 0;
 	else if(line_posi | line_nega) internal <= 0; // line변화 시 초기화
 	else
-		if((|btn_number) | btn_control[0]) begin // 버튼을 누르거나 오른쪽 커서 시프트 +1
-			if(internal == 21) internal <= 0;
-			else internal <= internal + 1;
-		end
-		else if(btn_control[1]) begin // 왼쪽 커서 시프트 -1
-			if(internal == 0)
-				internal <= internal; // 0일때 음수 안되도록 경우처리
-			else
-				internal <= internal - 1;
-		end
-		else
-			internal <= internal;
+	    if(state == WRITE) begin // WRITE작업 끝나고 카운팅 시킴
+	        if(cnt == 21) begin
+                if((|number_btn) | control_btn[0]) begin // 버튼을 누르거나 오른쪽 커서 시프트 +1
+                    if(internal == 21) internal <= 0;
+                    else internal <= internal + 1;
+                end
+                else if(control_btn[1]) begin // 왼쪽 커서 시프트 -1
+                    if(internal == 0)
+                        internal <= internal; // 0일때 음수 안되도록 경우처리
+                    else
+                        internal <= internal - 1;
+                end
+                else
+                    internal <= internal;
+            end
+        end
 end
 assign LCD_E = clk;
 
